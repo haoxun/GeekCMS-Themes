@@ -5,7 +5,7 @@ from geekcms.protocal import BasePlugin
 from geekcms.utils import PathResolver
 from geekcms.protocal import PluginController as pcl
 
-from .assets import ArticleFile, AboutFile, StaticFile
+from .assets import ArticleFile, AboutFile, StaticFile, IndexFile
 from .utils import AVALIABLE_MD_EXTENSIONS
 
 
@@ -60,6 +60,13 @@ class AboutMeLoader(BasePlugin, _LoadMethod):
     def run(self):
         self._load('about', AboutFile, AVALIABLE_MD_EXTENSIONS)
 
+
+class IndexLoader(BasePlugin, _LoadMethod):
+
+    plugin = 'load_index'
+
+    def run(self):
+        self._load('index', IndexFile, AVALIABLE_MD_EXTENSIONS)
 
 class ArticleLoader(BasePlugin, _LoadMethod):
 

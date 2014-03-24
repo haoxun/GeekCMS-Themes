@@ -1,29 +1,30 @@
 
+import os
+import shutil
+
 from geekcms.protocal import BasePlugin
 from geekcms.protocal import PluginController as pcl
 from geekcms.utils import PathResolver, ShareData
 
-from .assets import (MarkdownFile, ArticleFile, AboutFile, StaticFile,
-                     Page, ArticlePage, TimeLinePage,
-                     ArchivePage, AboutPage, IndexPage)
+from .assets import (Page, ArticlePage, TimeLinePage,
+                     ArchivePage, AboutPage, IndexPage,
+                     StaticFile)
 
 class OutputCleaner(BasePlugin):
 
     plugin = 'clean'
 
-    def run(self):
-        pass
-
-
-class IndexWriter(BasePlugin):
-
-    plugin = 'write_index_page'
-
-    def run(self):
-        pass
+    def run(self, resources):
+        shutil.rmtree(PathResolver.outputs())
+        os.mkdir(PathResolver.outputs())
 
 
 class StaticWriter(BasePlugin):
+
+    """
+    1. Write static files of inputs.
+    2. Write static files of themes.
+    """
 
     plugin = 'write_static'
 

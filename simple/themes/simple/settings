@@ -4,12 +4,14 @@ in_load:
 	load_static
 	load_article
 	load_about
+	load_index
 
 in_process:
 	md_to_html << gen_article_page
 
 post_process:
 	gen_about_page
+	gen_index_page
 	gen_time_line_page
 	gen_archive_page
 
@@ -17,7 +19,6 @@ pre_write:
 	clean
 
 in_write:
-	write_index_page
 	write_static
 	write_page
 

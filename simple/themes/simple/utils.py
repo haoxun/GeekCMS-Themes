@@ -2,7 +2,6 @@
 import os
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
-from collections import OrderedDict
 
 import mistune
 

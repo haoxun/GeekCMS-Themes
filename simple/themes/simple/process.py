@@ -12,7 +12,7 @@ from geekcms.protocal import PluginController as pcl
 from geekcms.protocal import BaseResource
 from geekcms.utils import ShareData
 
-from .assets import (MarkdownFile, ArticleFile, AboutFile,
+from .assets import (MarkdownFile, ArticleFile, AboutFile, IndexFile,
                      Page, ArticlePage, TimeLinePage,
                      ArchivePage, AboutPage, IndexPage)
 from .utils import (SyntaxHighlightRenderer, ArticlePageToFileMapping,
@@ -169,7 +169,27 @@ class ArticlePageGenerator(BasePlugin, _TemplateRender):
             ArticlePageToFileMapping.set_mapping(article_page, article_file)
 
 
-class AboutPageGenerator(BasePlugin, _TemplateRender):
+class _SimpleSpecialPageGenerator(_TemplateRender):
+
+    def _generate_simple_special_page(self,
+                                      files,
+                                      page_cls,
+                                      template_name):
+        if len(files) != 1:
+            raise SyntaxError("Wrong Number")
+        single_file = files[0]
+
+        template_render = self._get_particle_template_render(template_name)
+        html = template_render(
+            title=single_file.meta_data['title'],
+            article_html=single_file.html,
+        )
+
+        page_manager = self.get_manager_bind_with_plugin(page_cls)
+        page_manager.create(html)
+
+
+class AboutPageGenerator(BasePlugin, _SimpleSpecialPageGenerator):
 
     plugin = 'gen_about_page'
 
@@ -177,18 +197,26 @@ class AboutPageGenerator(BasePlugin, _TemplateRender):
         (pcl.RESOURCES, AboutFile),
     )
     def run(self, about_files):
-        if len(about_files) != 1:
-            raise SyntaxError("Wrong Number Of About")
-        about_file = about_files[0]
-
-        template_render = self._get_particle_template_render('about.html')
-        html = template_render(
-            title=about_file.meta_data['title'],
-            article_html=about_file.html,
+        self._generate_simple_special_page(
+            about_files,
+            AboutPage,
+            'article.html',
         )
 
-        page_manager = self.get_manager_bind_with_plugin(AboutPage)
-        page_manager.create(html)
+
+class IndexPageGenerator(BasePlugin, _SimpleSpecialPageGenerator):
+
+    plugin = 'gen_index_page'
+
+    @pcl.accept_parameters(
+        (pcl.RESOURCES, IndexFile),
+    )
+    def run(self, about_files):
+        self._generate_simple_special_page(
+            about_files,
+            IndexPage,
+            'article.html',
+        )
 
 
 class _PageForRenderGenerator:

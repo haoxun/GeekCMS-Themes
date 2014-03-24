@@ -39,6 +39,10 @@ class AboutFile(MarkdownFile):
     pass
 
 
+class IndexFile(MarkdownFile):
+    pass
+
+
 class StaticFile(_File):
     pass
 
