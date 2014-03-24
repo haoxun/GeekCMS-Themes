@@ -15,7 +15,7 @@ from .assets import (MarkdownFile, ArticleFile, AboutFile,
                      Page, ArticlePage, TimeLinePage,
                      ArchivePage, AboutPage, IndexPage)
 from .utils import (SyntaxHighlightRenderer, ArticlePageToFileMapping,
-                    template_env)
+                    template_env, PageForRender)
 
 
 class MarkdownProcessor(BasePlugin):
@@ -190,7 +190,7 @@ class AboutPageGenerator(BasePlugin, _TemplateRender):
         page_manager.create(html)
 
 
-class TimeLinePageGenerator(BasePlugin):
+class TimeLinePageGenerator(BasePlugin, _TemplateRender):
 
     plugin = 'gen_time_line_page'
 
@@ -198,7 +198,16 @@ class TimeLinePageGenerator(BasePlugin):
         (pcl.PRODUCTS, ArticlePage),
     )
     def run(self, article_pages):
-        pass
+
+        pages = []
+        for article_page in article_pages:
+            pages.append(PageForRender(article_page))
+
+        template_render = self._get_particle_template_render('time_line.html')
+        html = template_render(pages=pages)
+
+        page_manager = self.get_manager_bind_with_plugin(TimeLinePage)
+        page_manager.create(html)
 
 
 class ArchivePageGenerator(BasePlugin):

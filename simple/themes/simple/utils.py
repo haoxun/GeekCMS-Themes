@@ -45,7 +45,7 @@ class ArticlePageToFileMapping:
 
     @classmethod
     def get_mapping(cls, article_page):
-        return cls._page_to_file_mapping(article_page)
+        return cls._page_to_file_mapping[article_page]
 
 
 def _get_env():
@@ -59,3 +59,12 @@ def _get_env():
 
 
 template_env = _get_env()
+
+
+class PageForRender:
+
+    def __init__(self, article_page):
+        self.url = article_page.rel_path
+        article_file = ArticlePageToFileMapping.get_mapping(article_page)
+        self.title = article_file.meta_data['title']
+        self.post_time = article_file.meta_data['date'].strftime('%Y-%m-%d')

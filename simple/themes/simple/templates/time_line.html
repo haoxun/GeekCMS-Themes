@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	{% for page in pages %}
+		<div class="row">
+				<div class="col-md-8" style="word-wrap:break-word">
+					<h2><a href="{{ page.url }}">{{ page.title }}</a></h2>
+				</div>
+				<div class="col-md-4">
+					<h2>{{ page.post_time }}</h2>
+				</div>
+		</div>
+	{% endfor %}
+{% endblock %}
