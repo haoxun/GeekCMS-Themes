@@ -3,6 +3,7 @@ import os
 import re
 from datetime import datetime
 from functools import partial
+from collections import OrderedDict
 
 import mistune
 
@@ -15,7 +16,7 @@ from .assets import (MarkdownFile, ArticleFile, AboutFile,
                      Page, ArticlePage, TimeLinePage,
                      ArchivePage, AboutPage, IndexPage)
 from .utils import (SyntaxHighlightRenderer, ArticlePageToFileMapping,
-                    template_env, PageForRender)
+                    template_env, PageForRender, XMLOperation)
 
 
 class MarkdownProcessor(BasePlugin):
@@ -190,7 +191,19 @@ class AboutPageGenerator(BasePlugin, _TemplateRender):
         page_manager.create(html)
 
 
-class TimeLinePageGenerator(BasePlugin, _TemplateRender):
+class _PageForRenderGenerator:
+
+    def _generate_sorted_pages(self, article_pages, reverse=False):
+        pages = []
+        for article_page in article_pages:
+            pages.append(PageForRender(article_page))
+
+        return sorted(pages, key=lambda x: x.post_time, reverse=reverse)
+
+
+class TimeLinePageGenerator(BasePlugin,
+                            _TemplateRender,
+                            _PageForRenderGenerator):
 
     plugin = 'gen_time_line_page'
 
@@ -199,23 +212,110 @@ class TimeLinePageGenerator(BasePlugin, _TemplateRender):
     )
     def run(self, article_pages):
 
-        pages = []
-        for article_page in article_pages:
-            pages.append(PageForRender(article_page))
-
         template_render = self._get_particle_template_render('time_line.html')
+        pages = self._generate_sorted_pages(article_pages, True)
         html = template_render(pages=pages)
 
         page_manager = self.get_manager_bind_with_plugin(TimeLinePage)
         page_manager.create(html)
 
 
-class ArchivePageGenerator(BasePlugin):
+class ArchivePageGenerator(BasePlugin,
+                           _TemplateRender,
+                           _PageForRenderGenerator):
 
     plugin = 'gen_archive_page'
+
+    def _construct_ordered_paths(self, pages, old_xml):
+        ordered_paths = []
+        raw_paths = [page.input_rel_path for page in pages]
+
+        for node in old_xml.iter():
+            if node.tag != XMLOperation.PAGE:
+                continue
+            path = node.attrib['path']
+            if path in raw_paths:
+                # avaliable path
+                ordered_paths.append(path)
+                raw_paths.remove(path)
+        # extend new pages.
+        ordered_paths.extend(raw_paths)
+        return ordered_paths
+
+    def _get_common_prefix(self, ordered_paths):
+        dir_paths = []
+        for head, tail in map(os.path.split, ordered_paths):
+            dir_paths.append(head)
+
+        # all aritcles should shoulde be placed in a single dir,
+        # which is the root of the article tree.
+        # leaf of the article tree represents article, while dir
+        # represents topic.
+        common_prefix = os.path.commonprefix(dir_paths)
+        if not common_prefix.endswith('/'):
+            common_prefix += '/'
+        if '/' not in re.sub(common_prefix, '', ordered_paths[0]):
+            # there is only a single topic.
+            # go to an upper layer
+            common_prefix, _ = os.path.split(common_prefix.rstrip('/'))
+            common_prefix += '/'
+        return common_prefix
+
+    def _expand_article_tree(self, article_tree, dirs):
+        cur_node = article_tree
+        for dir in dirs:
+            if dir in cur_node:
+                cur_node = cur_node[dir]
+            else:
+                cur_node[dir] = {}
+                cur_node = cur_node[dir]
+        return cur_node
+
+    def _construct_article_tree(self,
+                                pages,
+                                ordered_paths,
+                                common_prefix):
+        # construct mapping from input path to page.
+        path_page_mapping = {}
+        for page in pages:
+            path_page_mapping[page.input_rel_path] = page
+
+        # generate article_tree.
+        article_tree = OrderedDict()
+        for path in ordered_paths:
+            rel_path = re.sub(common_prefix, '', path)
+            head, _ = os.path.split(rel_path)
+            dirs = head.split('/')
+
+            cur_node = self._expand_article_tree(article_tree, dirs)
+            if None not in cur_node:
+                cur_node[None] = []
+
+            cur_node[None].append({
+                'path': path,
+                'url': path_page_mapping[path].url,
+                'title': path_page_mapping[path].title,
+            })
+        return article_tree
 
     @pcl.accept_parameters(
         (pcl.PRODUCTS, ArticlePage),
     )
-    def run(self, archive_pages):
-        pass
+    def run(self, article_pages):
+        xml_operator = XMLOperation()
+        pages = self._generate_sorted_pages(article_pages)
+
+        old_xml = xml_operator.load_xml()
+        ordered_paths = self._construct_ordered_paths(pages, old_xml)
+        common_prefix = self._get_common_prefix(ordered_paths)
+        article_tree = self._construct_article_tree(
+            pages,
+            ordered_paths,
+            common_prefix,
+        )
+        xml_operator.generate_xml(article_tree)
+
+        template_render = self._get_particle_template_render('archive.html')
+        page_manager = self.get_manager_bind_with_plugin(ArchivePage)
+        html = template_render(article_tree=article_tree)
+        page_manager.create(html)

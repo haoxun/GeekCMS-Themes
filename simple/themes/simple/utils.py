@@ -1,5 +1,8 @@
 
 import os
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
+from collections import OrderedDict
 
 import mistune
 
@@ -65,6 +68,60 @@ class PageForRender:
 
     def __init__(self, article_page):
         self.url = article_page.rel_path
+
         article_file = ArticlePageToFileMapping.get_mapping(article_page)
         self.title = article_file.meta_data['title']
         self.post_time = article_file.meta_data['date'].strftime('%Y-%m-%d')
+        self.input_rel_path = article_file.rel_path
+
+
+class XMLOperation:
+
+    ROOT = 'root'
+    TOPIC = 'topic'
+    PAGE = 'page'
+
+    XML_REL_PATH = 'archive_xml'
+
+    def _get_xml_abs_path(self):
+        xml_path = os.path.join(
+            PathResolver.theme_state('simple'),
+            self.XML_REL_PATH,
+        )
+        return xml_path
+
+    def construct_xml_tree(self, xml_parent, article_parent):
+        if None in article_parent:
+            # leaf
+            for item in article_parent[None]:
+                page = ET.SubElement(xml_parent, self.PAGE)
+                page.attrib['title'] = item['title']
+                page.attrib['path'] = item['path']
+                page.attrib['url'] = item['url']
+        else:
+            # recursive build
+            for topic_name, sub_article_parent in article_parent.items():
+                topic = ET.SubElement(xml_parent, self.TOPIC)
+                topic.attrib['name'] = topic_name
+                self.construct_xml_tree(topic, sub_article_parent)
+
+    def load_xml(self):
+        xml_path = self._get_xml_abs_path()
+        try:
+            with open(xml_path) as f:
+                archive_xml_str = f.read()
+            old_xml = ET.fromstring(archive_xml_str)
+        except:
+            old_xml = ET.Element(self.ROOT)
+        return old_xml
+
+    def generate_xml(self, article_tree):
+        xml_path = self._get_xml_abs_path()
+        new_xml = ET.Element(self.ROOT)
+        self.construct_xml_tree(new_xml, article_tree)
+
+        raw_xml = ET.tostring(new_xml, encoding='UTF-8')
+        reparse = minidom.parseString(raw_xml)
+        xml_str = reparse.toprettyxml(' ' * 4, os.linesep, 'UTF-8')
+        with open(xml_path, 'wb') as f:
+            f.write(xml_str)

@@ -6,7 +6,7 @@
 			{% for file in dir[none] %}
 				<li>
 					<h4>
-						<a href="{{ file['url']|urlencode }}">{{ file['title'] }}</a>
+						<a href="{{ file['url']|urlencode }}" style="word-wrap:break-word">{{ file['title'] }}</a>
 					</h4>
 				</li>
 			{% endfor %}
