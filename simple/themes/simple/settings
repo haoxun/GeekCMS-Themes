@@ -1,0 +1,36 @@
+[RegisterPlugin]
+
+in_load:
+	load_static
+	load_article
+	load_about
+
+in_process:
+	md_to_html << gen_article_page
+
+post_process:
+	gen_about_page
+	gen_time_line_page
+	gen_article_page
+
+pre_write:
+	clean
+
+in_write:
+	write_index_page
+	write_static
+	write_page
+
+post_write:
+	cname
+
+[Share]
+# special pages
+index_page: /index.html
+time_line_page: /speical/time_line.html
+about_page: /speical/about.html
+archive_page: /speical/about.html
+
+# dir
+article: /articles/
+static: /static/
