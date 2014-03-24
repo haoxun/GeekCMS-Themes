@@ -1,7 +1,7 @@
 
 import os
 
-from geekcms.protocal import BaseResource, BaseProduct, BaseMessage
+from geekcms.protocal import BaseResource, BaseProduct
 from geekcms.utils import PathResolver, ShareData
 
 
@@ -11,11 +11,14 @@ class _File(BaseResource):
         self.abs_path = abs_path
 
     @property
+    def base_path(self):
+        return None
+
+    @property
     def rel_path(self):
         path = os.path.relpath(
             self.abs_path,
-            # rel_path with inputs directory as base.
-            PathResolver.inputs(),
+            self.base_path,
         )
         return path
 
@@ -26,8 +29,15 @@ class _File(BaseResource):
         return data
 
 
+class _FileOfInputs(_File):
+
+    @property
+    def base_path(self):
+        return PathResolver.inputs()
+
+
 # loaded files.
-class MarkdownFile(_File):
+class MarkdownFile(_FileOfInputs):
     pass
 
 
@@ -43,8 +53,26 @@ class IndexFile(MarkdownFile):
     pass
 
 
-class StaticFile(_File):
+class StaticFile(_FileOfInputs):
     pass
+
+
+class StaticFileOfInputs(StaticFile):
+    pass
+
+
+class _FileOfThemeStatic(StaticFile):
+
+    THEME = None
+
+    @property
+    def base_path(self):
+        return PathResolver.theme_dir(self.THEME)
+
+
+class StaticFileOfThemeSimple(_FileOfThemeStatic):
+
+    THEME = 'simple'
 
 
 # pages
@@ -54,6 +82,10 @@ class Page(BaseProduct):
         # rel_path with outputs directory as base.
         self.rel_path = rel_path
         self.text = text
+
+    @property
+    def url(self):
+        return '/' + self.rel_path
 
 
 class ArticlePage(Page):

@@ -1,10 +1,11 @@
 [RegisterPlugin]
 
 in_load:
-	load_static
+	load_inputs_static
 	load_article
 	load_about
 	load_index
+	load_theme_static
 
 in_process:
 	md_to_html << gen_article_page
@@ -30,8 +31,10 @@ post_write:
 index_page: index.html
 time_line_page: speical/time_line.html
 about_page: speical/about.html
-archive_page: speical/about.html
+archive_page: speical/archive.html
 
 # output dirs
 article: articles/
 static: static/
+
+cname: haoxun.org

@@ -101,14 +101,21 @@ class MarkdownProcessor(BasePlugin):
 
 class _TemplateRender:
 
+    def _get_url_of_share_data(self, key):
+        return '/' + ShareData.get(key)
+
     def _get_particle_template_render(self, template_name):
         template = template_env.get_template(template_name)
+        time_line_url = self._get_url_of_share_data('simple.time_line_page')
+        archive_url = self._get_url_of_share_data('simple.archive_page')
+        about_url = self._get_url_of_share_data('simple.about_page')
+
         partial_render = partial(
             template.render,
             # share fields.
-            time_line_url=ShareData.get('simple.time_line_page'),
-            archive_url=ShareData.get('simple.archive_page'),
-            about_url=ShareData.get('simple.about_page'),
+            time_line_url=time_line_url,
+            archive_url=archive_url,
+            about_url=about_url,
         )
         return partial_render
 
@@ -124,27 +131,27 @@ class ArticlePageGenerator(BasePlugin, _TemplateRender):
     plugin = 'gen_article_page'
 
     def __init__(self):
-        self._unique_urls = []
+        self._unique_rel_paths = []
 
-    def _adjust_conflict_url(self, url):
-        while url in self._unique_urls:
-            url = re.sub(r'.html$', '', url) + 'remove_conflict.html'
-        self._unique_urls.append(url)
-        return url
+    def _adjust_conflict_rel_path(self, rel_path):
+        while rel_path in self._unique_rel_paths:
+            rel_path = re.sub(r'.html$', '', rel_path) + 'remove_conflict.html'
+        self._unique_rel_paths.append(rel_path)
+        return rel_path
 
-    def _generate_article_url(self, rel_path_to_inputs):
+    def _generate_article_rel_path(self, rel_path_to_inputs):
         _, filename = os.path.split(rel_path_to_inputs)
         # generate url base on rel_path of inputs.
-        url = os.path.join(
+        rel_path = os.path.join(
             ShareData.get('simple.article'),
             filename,
         )
         # change extension to .html.
-        head, _ = os.path.splitext(url)
-        url = head + '.html'
+        head, _ = os.path.splitext(rel_path)
+        rel_path = head + '.html'
         # adjust conflits url.
-        url = self._adjust_conflict_url(url)
-        return url
+        rel_path = self._adjust_conflict_rel_path(rel_path)
+        return rel_path
 
     def _render_html(self, article_file):
         template_render = self._get_particle_template_render('article.html')
@@ -161,10 +168,10 @@ class ArticlePageGenerator(BasePlugin, _TemplateRender):
         page_manager = self.get_manager_bind_with_plugin(ArticlePage)
         for article_file in article_files:
             # generate necessary attrs.
-            url = self._generate_article_url(article_file.rel_path)
+            rel_path = self._generate_article_rel_path(article_file.rel_path)
             html = self._render_html(article_file)
             # init ArticlePage.
-            article_page = page_manager.create(html, url)
+            article_page = page_manager.create(html, rel_path)
             # set mapping.
             ArticlePageToFileMapping.set_mapping(article_page, article_file)
 

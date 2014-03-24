@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
     <topic name="test">
-        <page path="article/test/top-level.md" title="TopLevel" url="articles/top-level.html"/>
-        <page path="article/test/longlong.md" title="LongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLong" url="articles/longlong.html"/>
+        <page path="article/test/top-level.md" title="TopLevel" url="/articles/top-level.html"/>
+        <page path="article/test/longlong.md" title="LongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLong" url="/articles/longlong.html"/>
+        <page path="article/test/codetest.md" title="codetest" url="/articles/codetest.html"/>
     </topic>
 </root>

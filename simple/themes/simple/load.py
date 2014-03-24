@@ -5,7 +5,8 @@ from geekcms.protocal import BasePlugin
 from geekcms.utils import PathResolver
 from geekcms.protocal import PluginController as pcl
 
-from .assets import ArticleFile, AboutFile, StaticFile, IndexFile
+from .assets import (ArticleFile, AboutFile, IndexFile,
+                     StaticFileOfInputs, StaticFileOfThemeSimple)
 from .utils import AVALIABLE_MD_EXTENSIONS
 
 
@@ -17,7 +18,6 @@ class _LoadMethod:
             dirname,
         )
         return dir_path
-
 
     def _load_files_in_dir(self, top, avaliable_exts=None):
 
@@ -34,7 +34,6 @@ class _LoadMethod:
 
                 yield os.path.join(dirpath, name)
 
-
     def _load(self, dirname, resource_cls, avaliable_exts=None):
         # get abs path of dirname.
         dir_path = self._get_dir_path_of_inpouts(dirname)
@@ -45,12 +44,12 @@ class _LoadMethod:
             manager.create(abs_path)
 
 
-class StaticFileLoader(BasePlugin, _LoadMethod):
+class InputsStaticFileLoader(BasePlugin, _LoadMethod):
 
-    plugin = 'load_static'
+    plugin = 'load_inputs_static'
 
     def run(self):
-        self._load('static', StaticFile)
+        self._load('static', StaticFileOfInputs)
 
 
 class AboutMeLoader(BasePlugin, _LoadMethod):
@@ -74,3 +73,17 @@ class ArticleLoader(BasePlugin, _LoadMethod):
 
     def run(self):
         self._load('article', ArticleFile, AVALIABLE_MD_EXTENSIONS)
+
+
+class ThemesStaticFileLoader(BasePlugin, _LoadMethod):
+
+    plugin = 'load_theme_static'
+
+    def run(self):
+        dir_path = os.path.join(
+            PathResolver.theme_dir('simple'),
+            'static',
+        )
+        manager = self.get_manager_bind_with_plugin(StaticFileOfThemeSimple)
+        for abs_path in self._load_files_in_dir(dir_path):
+            manager.create(abs_path)

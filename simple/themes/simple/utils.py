@@ -66,7 +66,7 @@ template_env = _get_env()
 class PageForRender:
 
     def __init__(self, article_page):
-        self.url = article_page.rel_path
+        self.url = article_page.url
 
         article_file = ArticlePageToFileMapping.get_mapping(article_page)
         self.title = article_file.meta_data['title']

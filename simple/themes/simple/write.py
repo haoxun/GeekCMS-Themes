@@ -10,16 +10,37 @@ from .assets import (Page, ArticlePage, TimeLinePage,
                      ArchivePage, AboutPage, IndexPage,
                      StaticFile)
 
+
 class OutputCleaner(BasePlugin):
 
     plugin = 'clean'
 
     def run(self, resources):
-        shutil.rmtree(PathResolver.outputs())
-        os.mkdir(PathResolver.outputs())
+        for dirpath, dirnames, filenames in os.walk(PathResolver.outputs()):
+            for name in filenames:
+                if name.startswith('.'):
+                    continue
+                os.remove(
+                    os.path.join(dirpath, name),
+                )
 
 
-class StaticWriter(BasePlugin):
+class _TargetAbsPath:
+
+    def _get_tgt_abs_path(self, tgt_rel_path):
+        path = os.path.join(
+            PathResolver.outputs(),
+            tgt_rel_path,
+        )
+        return path
+
+    def _make_sure_dir_exist(self, tgt_abs_path):
+        dir_path, _ = os.path.split(tgt_abs_path)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+
+
+class StaticWriter(BasePlugin, _TargetAbsPath):
 
     """
     1. Write static files of inputs.
@@ -32,10 +53,16 @@ class StaticWriter(BasePlugin):
         (pcl.RESOURCES, StaticFile),
     )
     def run(self, static_files):
-        pass
+        for static_file in static_files:
+            tgt_abs_path = self._get_tgt_abs_path(static_file.rel_path)
+            self._make_sure_dir_exist(tgt_abs_path)
+            shutil.copyfile(
+                static_file.abs_path,
+                tgt_abs_path,
+            )
 
 
-class PageWriter(BasePlugin):
+class PageWriter(BasePlugin, _TargetAbsPath):
 
     plugin = 'write_page'
 
@@ -43,7 +70,11 @@ class PageWriter(BasePlugin):
         (pcl.PRODUCTS, Page),
     )
     def run(self, pages):
-        pass
+        for page in pages:
+            tgt_abs_path = self._get_tgt_abs_path(page.rel_path)
+            self._make_sure_dir_exist(tgt_abs_path)
+            with open(tgt_abs_path, 'w') as f:
+                f.write(page.text)
 
 
 class CNAMEWriter(BasePlugin):
@@ -51,4 +82,9 @@ class CNAMEWriter(BasePlugin):
     plugin = 'cname'
 
     def run(self):
-        pass
+        tgt_abs_path = os.path.join(
+            PathResolver.outputs(),
+            'CNAME',
+        )
+        with open(tgt_abs_path, 'w') as f:
+            f.write(ShareData.get('simple.cname'))
