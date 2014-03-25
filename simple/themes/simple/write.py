@@ -16,13 +16,18 @@ class OutputCleaner(BasePlugin):
     plugin = 'clean'
 
     def run(self, resources):
-        for dirpath, dirnames, filenames in os.walk(PathResolver.outputs()):
-            for name in filenames:
-                if name.startswith('.'):
-                    continue
-                os.remove(
-                    os.path.join(dirpath, name),
-                )
+        for name in os.listdir(PathResolver.outputs()):
+            if name.startswith('.'):
+                continue
+
+            path = os.path.join(
+                PathResolver.outputs(),
+                name,
+            )
+            if os.path.isfile(path):
+                os.remove(path)
+            elif os.path.isdir(path):
+                os.removedirs(path)
 
 
 class _TargetAbsPath:
