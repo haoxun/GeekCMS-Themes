@@ -27,7 +27,7 @@ class OutputCleaner(BasePlugin):
             if os.path.isfile(path):
                 os.remove(path)
             elif os.path.isdir(path):
-                os.removedirs(path)
+                shutil.rmtree(path)
 
 
 class _TargetAbsPath:
