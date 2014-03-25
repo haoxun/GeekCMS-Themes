@@ -84,7 +84,7 @@ class XMLOperation:
 
     def _get_xml_abs_path(self):
         xml_path = os.path.join(
-            PathResolver.theme_state('simple'),
+            PathResolver.theme_state('simple', ensure_exist=True),
             self.XML_REL_PATH,
         )
         return xml_path

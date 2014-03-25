@@ -1,2 +1,5 @@
 [RegisterTheme]
 themes: simple
+
+[Share]
+cname: example.org

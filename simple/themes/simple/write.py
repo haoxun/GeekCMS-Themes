@@ -87,4 +87,4 @@ class CNAMEWriter(BasePlugin):
             'CNAME',
         )
         with open(tgt_abs_path, 'w') as f:
-            f.write(ShareData.get('simple.cname'))
+            f.write(ShareData.get('global.cname'))

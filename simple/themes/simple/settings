@@ -36,5 +36,3 @@ archive_page: speical/archive.html
 # output dirs
 article: articles/
 static: static/
-
-cname: haoxun.org
