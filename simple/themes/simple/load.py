@@ -1,9 +1,9 @@
 
 import os
 
-from geekcms.protocal import BasePlugin
+from geekcms.protocol import BasePlugin
 from geekcms.utils import PathResolver
-from geekcms.protocal import PluginController as pcl
+from geekcms.protocol import PluginController as pcl
 
 from .assets import (ArticleFile, AboutFile, IndexFile,
                      StaticFileOfInputs, StaticFileOfThemeSimple)
@@ -66,6 +66,7 @@ class IndexLoader(BasePlugin, _LoadMethod):
 
     def run(self):
         self._load('index', IndexFile, AVALIABLE_MD_EXTENSIONS)
+
 
 class ArticleLoader(BasePlugin, _LoadMethod):
 

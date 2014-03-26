@@ -1,7 +1,7 @@
 
 import os
 
-from geekcms.protocal import BaseResource, BaseProduct
+from geekcms.protocol import BaseResource, BaseProduct
 from geekcms.utils import PathResolver, ShareData
 
 

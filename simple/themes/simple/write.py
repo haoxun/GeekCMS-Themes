@@ -2,8 +2,8 @@
 import os
 import shutil
 
-from geekcms.protocal import BasePlugin
-from geekcms.protocal import PluginController as pcl
+from geekcms.protocol import BasePlugin
+from geekcms.protocol import PluginController as pcl
 from geekcms.utils import PathResolver, ShareData
 
 from .assets import (Page, ArticlePage, TimeLinePage,

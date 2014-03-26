@@ -7,9 +7,9 @@ from collections import OrderedDict
 
 import mistune
 
-from geekcms.protocal import BasePlugin
-from geekcms.protocal import PluginController as pcl
-from geekcms.protocal import BaseResource
+from geekcms.protocol import BasePlugin
+from geekcms.protocol import PluginController as pcl
+from geekcms.protocol import BaseResource
 from geekcms.utils import ShareData
 
 from .assets import (MarkdownFile, ArticleFile, AboutFile, IndexFile,
@@ -45,7 +45,7 @@ class MarkdownProcessor(BasePlugin):
         while lines:
             line = lines.pop(0)
             if line.strip() == '':
-                break # blank line - done
+                break
             m1 = META_RE.match(line)
             if m1:
                 key = m1.group('key').lower().strip()
@@ -61,7 +61,7 @@ class MarkdownProcessor(BasePlugin):
                     meta[key].append(m2.group('value').strip())
                 else:
                     lines.insert(0, line)
-                    break # no meta data - done
+                    break
         return meta
 
     def _check_required_fields(self, meta_data):
