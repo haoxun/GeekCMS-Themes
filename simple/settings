@@ -1,5 +1,5 @@
 [RegisterTheme]
-themes: simple
+themes: simple git_upload
 
 [Share]
 cname: example.org
