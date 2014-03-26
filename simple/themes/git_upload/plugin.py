@@ -7,9 +7,19 @@ Usage:
 
 from datetime import datetime
 import subprocess
+import os
 
 from geekcms.protocol import BaseExtendedProcedure
 from geekcms.utils import PathResolver
+
+
+class CWDContextManager:
+
+    def __enter__(self):
+        os.chdir(PathResolver.outputs())
+
+    def __exit__(self, *args, **kwargs):
+        os.chdir(PathResolver.project_path)
 
 
 class GitUploader(BaseExtendedProcedure):
@@ -26,9 +36,10 @@ class GitUploader(BaseExtendedProcedure):
             datetime.now().strftime('%c'),
         )
         commands = [
-            ['git', 'add', '--all', PathResolver.outputs()],
+            ['git', 'add', '--all', '.'],
             ['git', 'commit', '-m', commit_text],
             ['git', 'push'],
         ]
-        for command in commands:
-            subprocess.check_call(command)
+        with CWDContextManager():
+            for command in commands:
+                subprocess.check_call(command)
