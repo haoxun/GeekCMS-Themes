@@ -7,7 +7,7 @@ as its keys are necessary. *Title* should be a string without any line breaking
 and *Date* should be a string with the format of "dd/mm/yyyy".
 * Place a markdown file in /inputs/about for rendering *about* page.
 * Place a markdown file in /inputs/index for rendering *index* page.
-* Place a tree-like structure(file tree) contains multiple markdown files in /inputs/articles
+* Place a tree-like structure(file tree) contains multiple markdown files in /inputs/article
 for rendering *article* pages.
 * Place all image and other static resources in /inputs/static/, and with links them with the 
 format of '/static/\*' for reference.
