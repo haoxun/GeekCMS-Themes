@@ -12,3 +12,8 @@ for rendering *article* pages.
 * Place all image and other static resources in /inputs/static/, and with links them with the 
 format of '/static/\*' for reference.
 * Change the project settings *cname* to your domain if necessary.
+
+Third-part packages Jinja2 and mistune is required.
+
+	pip install Jinja2
+	pin install mistune
