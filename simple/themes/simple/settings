@@ -25,6 +25,7 @@ in_write:
 
 post_write:
 	cname
+	sitemap
 
 [Share]
 # special pages

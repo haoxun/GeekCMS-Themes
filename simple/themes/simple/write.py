@@ -1,6 +1,7 @@
 
 import os
 import shutil
+import urllib.parse
 
 from geekcms.protocol import BasePlugin
 from geekcms.protocol import PluginController as pcl
@@ -9,6 +10,7 @@ from geekcms.utils import PathResolver, ShareData
 from .assets import (Page, ArticlePage, TimeLinePage,
                      ArchivePage, AboutPage, IndexPage,
                      StaticFile)
+from .utils import template_env
 
 
 class OutputCleaner(BasePlugin):
@@ -87,9 +89,34 @@ class CNAMEWriter(BasePlugin):
     plugin = 'cname'
 
     def run(self):
+        domain = ShareData.get('global.domain')
         tgt_abs_path = os.path.join(
             PathResolver.outputs(),
             'CNAME',
         )
         with open(tgt_abs_path, 'w') as f:
-            f.write(ShareData.get('global.cname'))
+            f.write(domain)
+
+
+class SitemapGenerator(BasePlugin):
+
+    plugin = 'sitemap'
+
+    @pcl.accept_parameters(
+        (pcl.PRODUCTS, Page),
+    )
+    def run(self, pages):
+        http_domain = 'http://{}'.format(ShareData.get('global.domain'))
+        urls = []
+        for page in pages:
+            url = urllib.parse.urljoin(http_domain, page.url)
+            urls.append(url)
+
+        xml_template = template_env.get_template('simple_xml.xml')
+        tgt_abs_path = os.path.join(
+            PathResolver.outputs(),
+            'sitemap.xml',
+        )
+        with open(tgt_abs_path, 'w') as f:
+            xml_text = xml_template.render(urls=urls)
+            f.write(xml_text)

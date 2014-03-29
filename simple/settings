@@ -2,4 +2,4 @@
 themes: simple git_upload
 
 [Share]
-cname: example.org
+domain: www.example.org
