@@ -107,16 +107,30 @@ class SitemapGenerator(BasePlugin):
     )
     def run(self, pages):
         http_domain = 'http://{}'.format(ShareData.get('global.domain'))
+
+        # generate sitemap.
         urls = []
         for page in pages:
             url = urllib.parse.urljoin(http_domain, page.url)
             urls.append(url)
 
         xml_template = template_env.get_template('simple_xml.xml')
-        tgt_abs_path = os.path.join(
+        sitemap_abs_path = os.path.join(
             PathResolver.outputs(),
             'sitemap.xml',
         )
-        with open(tgt_abs_path, 'w') as f:
+        with open(sitemap_abs_path, 'w') as f:
             xml_text = xml_template.render(urls=urls)
             f.write(xml_text)
+
+        # add sitemap to robots.txt.
+        robots_abs_path = os.path.join(
+            PathResolver.outputs(),
+            'robots.txt',
+        )
+        sitemap_url = urllib.parse.urljoin(
+            http_domain,
+            'sitemap.xml',
+        )
+        with open(robots_abs_path, 'a') as f:
+            f.write('Sitemap: {}'.format(sitemap_url))
