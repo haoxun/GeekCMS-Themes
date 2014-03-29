@@ -106,15 +106,21 @@ class SitemapGenerator(BasePlugin):
         (pcl.PRODUCTS, Page),
     )
     def run(self, pages):
+        # domain would not be escaped.
         http_domain = 'http://{}'.format(ShareData.get('global.domain'))
 
         # generate sitemap.
         urls = []
         for page in pages:
-            url = urllib.parse.urljoin(http_domain, page.url)
+            url = urllib.parse.urljoin(
+                http_domain,
+                # escape page url.
+                urllib.parse.quote(page.url),
+            )
             urls.append(url)
 
         xml_template = template_env.get_template('simple_xml.xml')
+        # url of sitemap would not be escaped.
         sitemap_abs_path = os.path.join(
             PathResolver.outputs(),
             'sitemap.xml',
