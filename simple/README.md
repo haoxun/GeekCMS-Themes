@@ -13,14 +13,17 @@ and *Date* should be a string with the format of "dd/mm/yyyy".
 for rendering *article* pages.
 * Place all image and other static resources in /inputs/static/, and with links them with the 
 format of '/static/\*' for reference.
-* Change the project settings *domain* to your domain if necessary.
+* Change the project settings *domain* to your domain.
+* Change the project settings *disqus_shortname* to Disqus shortname.
+
 
 Features:
 
 * Markdown support with *mistune*.
 * Code block with Github code style.
 * Article tree is detected and genereated. The ordering of articles in the tree is stored in /states/simple/archive\_xml, which could be adjusted for reordering.
-* Sitemap Support .
+* Sitemap support.
+* Disqus support.
 
 Third-part packages Jinja2 and mistune is required.
 
