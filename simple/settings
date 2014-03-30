@@ -3,3 +3,4 @@ themes: simple git_upload
 
 [Share]
 domain: www.example.org
+disqus_shortname: exampleorg

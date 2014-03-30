@@ -106,6 +106,7 @@ class _TemplateRender:
 
     def _get_particle_template_render(self, template_name):
         template = template_env.get_template(template_name)
+
         time_line_url = self._get_url_of_share_data('simple.time_line_page')
         archive_url = self._get_url_of_share_data('simple.archive_page')
         about_url = self._get_url_of_share_data('simple.about_page')
@@ -133,6 +134,12 @@ class ArticlePageGenerator(BasePlugin, _TemplateRender):
     def __init__(self):
         self._unique_rel_paths = []
 
+    def _get_disqus_js(self):
+        js_template = template_env.get_template('disqus.js')
+        return js_template.render(
+            disqus_shortname=ShareData.get('global.disqus_shortname'),
+        )
+
     def _adjust_conflict_rel_path(self, rel_path):
         while rel_path in self._unique_rel_paths:
             rel_path = re.sub(r'.html$', '', rel_path) + 'remove_conflict.html'
@@ -158,6 +165,7 @@ class ArticlePageGenerator(BasePlugin, _TemplateRender):
         html = template_render(
             title=article_file.meta_data['title'],
             article_html=article_file.html,
+            disqus_js=self._get_disqus_js(),
         )
         return html
 
