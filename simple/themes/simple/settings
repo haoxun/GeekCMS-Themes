@@ -30,9 +30,9 @@ post_write:
 [Share]
 # special pages
 index_page: index.html
-time_line_page: speical/time_line.html
+time_line_page: speical/timeline.html
 about_page: speical/about.html
-archive_page: speical/archive.html
+archive_page: speical/archives.html
 
 # output dirs
 article: articles/

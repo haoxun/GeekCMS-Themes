@@ -257,7 +257,8 @@ class TimeLinePageGenerator(BasePlugin,
 
         template_render = self._get_particle_template_render('time_line.html')
         pages = self._generate_sorted_pages(article_pages, True)
-        html = template_render(pages=pages)
+        html = template_render(pages=pages,
+                               title='TimeLine')
 
         page_manager = self.get_manager_bind_with_plugin(TimeLinePage)
         page_manager.create(html)
@@ -360,5 +361,6 @@ class ArchivePageGenerator(BasePlugin,
 
         template_render = self._get_particle_template_render('archive.html')
         page_manager = self.get_manager_bind_with_plugin(ArchivePage)
-        html = template_render(article_tree=article_tree)
+        html = template_render(article_tree=article_tree,
+                               title='Archives')
         page_manager.create(html)
